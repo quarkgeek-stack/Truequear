@@ -84,6 +84,20 @@ enum PaymentStatus {
   REJECTED
 }
 
+enum AuctionStatus {
+  ACTIVO
+  CERRADO_VENDIDO
+  CERRADO_SIN_RESERVA
+  CERRADO_SIN_PUJAS
+  CANCELADO
+}
+
+enum AuctionShipping {
+  COMPRADOR
+  VENDEDOR
+  A_CONVENIR
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -107,6 +121,9 @@ model User {
   sellerDeals         Deal[]         @relation("SellerDeals")
   authoredReviews     Review[]       @relation("AuthoredReviews")
   receivedReviews     Review[]       @relation("ReceivedReviews")
+  sellerAuctions      Auction[]      @relation("SellerAuctions")
+  leaderAuctions      Auction[]      @relation("LeaderAuctions")
+  bids                Bid[]
 }
 
 model Category {
@@ -117,6 +134,7 @@ model Category {
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children Category[] @relation("CategoryHierarchy")
   listings Listing[]
+  auctions Auction[]
 }
 
 model Listing {
@@ -167,8 +185,10 @@ model Favorite {
 
 model Conversation {
   id            String    @id @default(cuid())
-  listingId     String
-  listing       Listing   @relation(fields: [listingId], references: [id])
+  listingId     String?
+  listing       Listing?  @relation(fields: [listingId], references: [id])
+  auctionId     String?
+  auction       Auction?  @relation(fields: [auctionId], references: [id])
   buyerId       String
   buyer         User      @relation("BuyerConversations", fields: [buyerId], references: [id])
   sellerId      String
@@ -182,6 +202,7 @@ model Conversation {
   deal     Deal?
 
   @@unique([listingId, buyerId])
+  @@unique([auctionId, buyerId])
 }
 
 model Message {
@@ -249,4 +270,57 @@ model PlatformSetting {
   commissionBps      Int    @default(400)
   minCommissionCents Int    @default(0)
   maxCommissionCents Int?
+}
+
+model Auction {
+  id             String          @id @default(cuid())
+  sellerId       String
+  seller         User            @relation("SellerAuctions", fields: [sellerId], references: [id])
+  leaderId       String?
+  leader         User?           @relation("LeaderAuctions", fields: [leaderId], references: [id])
+  title          String          @db.VarChar(80)
+  description    String          @db.VarChar(4000)
+  condition      Condition
+  categoryId     String
+  category       Category        @relation(fields: [categoryId], references: [id])
+  baseCents      Int
+  reserveCents   Int?
+  currentCents   Int
+  bidCount       Int             @default(0)
+  startAt        DateTime        @default(now())
+  endAt          DateTime
+  extensionCount Int             @default(0)
+  status         AuctionStatus   @default(ACTIVO)
+  shipping       AuctionShipping @default(A_CONVENIR)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  images        AuctionImage[]
+  bids          Bid[]
+  conversations Conversation[]
+
+  @@index([status, endAt])
+  @@index([categoryId, status])
+}
+
+model AuctionImage {
+  id        String   @id @default(cuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int
+  createdAt DateTime @default(now())
+}
+
+model Bid {
+  id           String   @id @default(cuid())
+  auctionId    String
+  auction      Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidderId     String
+  bidder       User     @relation(fields: [bidderId], references: [id])
+  amountCents  Int
+  autoMaxCents Int?
+  createdAt    DateTime @default(now())
+
+  @@index([auctionId, createdAt])
 }
