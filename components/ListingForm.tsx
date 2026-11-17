@@ -293,13 +293,13 @@ export function ListingForm({
               htmlFor="parentCategory"
               className="mb-1 block text-xs font-semibold text-[#16324F]"
             >
-              Categoría principal (Paso 1)
+              1. Rubro o Categoría Principal
             </label>
             <select
               id="parentCategory"
               value={selectedParentId}
               onChange={(e) => handleParentChange(e.target.value)}
-              className="min-h-[48px] w-full rounded-[12px] border border-[#C5D4E5] bg-white px-3 py-2 text-sm text-[#16324F] focus:border-[#75AADB] focus:outline-none focus:ring-[3px] focus:ring-[#75AADB]/50"
+              className="min-h-[48px] w-full rounded-[12px] border border-[#C5D4E5] bg-white px-3 py-2 text-sm font-semibold text-[#16324F] focus:border-[#75AADB] focus:outline-none focus:ring-[3px] focus:ring-[#75AADB]/50"
             >
               {categories.map((parent) => (
                 <option key={parent.id} value={parent.id}>
@@ -307,6 +307,9 @@ export function ListingForm({
                 </option>
               ))}
             </select>
+            <p className="mt-1 text-[11px] text-[#5C6B82]">
+              Elegí el rubro general (Tecnología, Hogar, Herramientas, etc.)
+            </p>
           </div>
 
           <div>
@@ -314,12 +317,12 @@ export function ListingForm({
               htmlFor="categoryId"
               className="mb-1 block text-xs font-semibold text-[#16324F]"
             >
-              Subcategoría (Paso 2)
+              2. Subcategoría específica
             </label>
             <select
               id="categoryId"
               {...register("categoryId")}
-              className="min-h-[48px] w-full rounded-[12px] border border-[#C5D4E5] bg-white px-3 py-2 text-sm text-[#16324F] focus:border-[#75AADB] focus:outline-none focus:ring-[3px] focus:ring-[#75AADB]/50"
+              className="min-h-[48px] w-full rounded-[12px] border border-[#C5D4E5] bg-white px-3 py-2 text-sm font-semibold text-[#16324F] focus:border-[#75AADB] focus:outline-none focus:ring-[3px] focus:ring-[#75AADB]/50"
             >
               {subcategories.map((sub) => (
                 <option key={sub.id} value={sub.id}>
@@ -327,6 +330,9 @@ export function ListingForm({
                 </option>
               ))}
             </select>
+            <p className="mt-1 text-[11px] text-[#5C6B82]">
+              Tipo específico de artículo que estás ofreciendo
+            </p>
             {errors.categoryId && (
               <p className="mt-1 text-xs font-medium text-red-600">
                 {errors.categoryId.message}
@@ -334,6 +340,17 @@ export function ListingForm({
             )}
           </div>
         </div>
+
+        {activeParent && (
+          <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[#D5E4F2] bg-[#F3F8FC] px-3.5 py-2.5 text-xs text-[#16324F]">
+            <span className="font-bold text-[#75AADB]">📍 Tu publicación se verá en:</span>
+            <span className="font-extrabold text-[#16324F]">{activeParent.name}</span>
+            <span className="text-[#75AADB]">›</span>
+            <span className="font-bold text-[#1F497D]">
+              {subcategories.find((s) => s.id === watch("categoryId"))?.name ?? "Seleccioná subcategoría"}
+            </span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
