@@ -597,6 +597,13 @@ export async function confirmDealAction(
     return { ok: false, error: "No formás parte de esta conversación." };
   }
 
+  if (!conversation.listing || !conversation.listingId) {
+    return {
+      ok: false,
+      error: "Esta conversación corresponde a un remate. El pago y la entrega se coordinan directamente entre ustedes.",
+    };
+  }
+
   // Validar que el tipo de trato sea compatible con la publicación
   const listingDealType = conversation.listing.dealType;
   if (listingDealType === "VENTA" && parsed.data.kind !== "VENTA") {
@@ -725,7 +732,7 @@ export async function confirmDealAction(
       },
     });
 
-    if (bothConfirmed && conversation.listing.status === "ACTIVA") {
+    if (bothConfirmed && conversation.listing && conversation.listingId && conversation.listing.status === "ACTIVA") {
       await tx.listing.update({
         where: { id: conversation.listingId },
         data: { status: "RESERVADA" },
