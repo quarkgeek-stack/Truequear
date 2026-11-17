@@ -39,12 +39,14 @@ interface ChatThreadProps {
     priceCents: number | null;
     dealType: DealType;
     imageUrl: string | null;
+    isAuction?: boolean;
   };
   initialMessages: ChatMessageItem[];
   initialDeal: DealViewData | null;
   initialOtherPartyReadAt: string | null;
   isMPConfigured: boolean;
   defaultRateBps: number;
+  auctionNotice?: string | null;
 }
 
 export function ChatThread({
@@ -57,6 +59,7 @@ export function ChatThread({
   initialOtherPartyReadAt,
   isMPConfigured,
   defaultRateBps,
+  auctionNotice,
 }: ChatThreadProps) {
   const [messages, setMessages] = useState<ChatMessageItem[]>(initialMessages);
   const [deal, setDeal] = useState<DealViewData | null>(initialDeal);
@@ -282,7 +285,7 @@ export function ChatThread({
               {otherParty.name}
             </p>
             <Link
-              href={`/aviso/${listing.id}`}
+              href={listing.isAuction ? `/remates/${listing.id}` : `/aviso/${listing.id}`}
               className="block truncate text-xs font-bold text-[#75AADB] hover:underline"
             >
               {listing.title} •{" "}
@@ -293,6 +296,12 @@ export function ChatThread({
           </div>
         </div>
       </div>
+
+      {auctionNotice && (
+        <div className="rounded-2xl border-2 border-[#16324F] bg-[#FFF8E7] p-4 text-center text-xs font-extrabold text-[#16324F] shadow-sm">
+          🔨 {auctionNotice}
+        </div>
+      )}
 
       {/* Panel de cierre de operación (Confirmar operación, Comisión, Calificar) */}
       <DealPanel

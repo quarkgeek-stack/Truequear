@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   LogOut,
   Search,
+  Gavel,
 } from "lucide-react";
 
 function TruequeARLogo() {
@@ -67,6 +68,14 @@ export async function Header() {
             <span className="sr-only sm:not-sr-only sm:ml-1.5 sm:text-sm sm:font-semibold">
               Buscar
             </span>
+          </Link>
+
+          <Link
+            href="/remates"
+            className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-[12px] bg-[#F6C445] px-2.5 py-2 text-xs font-black text-[#16324F] transition hover:bg-[#F6C445]/90 sm:px-3 sm:text-sm"
+          >
+            <Gavel className="h-4 w-4 shrink-0 text-[#16324F]" />
+            <span>Remates</span>
           </Link>
 
           <Link
