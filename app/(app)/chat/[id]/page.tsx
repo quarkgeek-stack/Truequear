@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isMercadoPagoConfigured } from "@/lib/mercadopago";
+import { formatARSFromCents } from "@/lib/commission";
 import { ChatThread } from "@/components/ChatThread";
 
 export const metadata = {
@@ -26,6 +27,11 @@ export default async function ChatDetailPage({
       where: { id },
       include: {
         listing: {
+          include: {
+            images: { orderBy: { position: "asc" }, take: 1 },
+          },
+        },
+        auction: {
           include: {
             images: { orderBy: { position: "asc" }, take: 1 },
           },
@@ -71,18 +77,45 @@ export default async function ChatDetailPage({
     ? conversation.sellerReadAt
     : conversation.buyerReadAt;
 
-  return (
-    <ChatThread
-      conversationId={conversation.id}
-      currentUserId={userId}
-      otherParty={otherParty}
-      listing={{
+  const itemData = conversation.listing
+    ? {
         id: conversation.listing.id,
         title: conversation.listing.title,
         priceCents: conversation.listing.priceCents,
         dealType: conversation.listing.dealType,
         imageUrl: conversation.listing.images[0]?.url ?? null,
-      }}
+        isAuction: false,
+      }
+    : conversation.auction
+    ? {
+        id: conversation.auction.id,
+        title: `[Remate] ${conversation.auction.title}`,
+        priceCents: conversation.auction.currentCents,
+        dealType: "VENTA" as const,
+        imageUrl: conversation.auction.images[0]?.url ?? null,
+        isAuction: true,
+      }
+    : {
+        id: "none",
+        title: "Publicación",
+        priceCents: null,
+        dealType: "VENTA" as const,
+        imageUrl: null,
+        isAuction: false,
+      };
+
+  const auctionNotice = conversation.auction
+    ? `Remate cerrado en ${formatARSFromCents(
+        conversation.auction.currentCents
+      )}. El pago y la entrega los arreglan ustedes. Tienen 24 h para ponerse de acuerdo.`
+    : null;
+
+  return (
+    <ChatThread
+      conversationId={conversation.id}
+      currentUserId={userId}
+      otherParty={otherParty}
+      listing={itemData}
       initialMessages={conversation.messages.map((m) => ({
         id: m.id,
         body: m.body,
@@ -96,6 +129,7 @@ export default async function ChatDetailPage({
       }
       isMPConfigured={isMercadoPagoConfigured()}
       defaultRateBps={settings?.commissionBps ?? 400}
+      auctionNotice={auctionNotice}
     />
   );
 }

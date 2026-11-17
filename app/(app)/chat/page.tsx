@@ -30,6 +30,13 @@ export default async function ChatListPage() {
           images: { orderBy: { position: "asc" }, take: 1 },
         },
       },
+      auction: {
+        select: {
+          id: true,
+          title: true,
+          images: { orderBy: { position: "asc" }, take: 1 },
+        },
+      },
       buyer: {
         select: { id: true, name: true, imageUrl: true },
       },
@@ -85,7 +92,8 @@ export default async function ChatListPage() {
               lastMsg.senderId !== userId &&
               (!myReadAt || new Date(lastMsg.createdAt) > new Date(myReadAt));
 
-            const thumb = conv.listing.images[0]?.url;
+            const title = conv.listing?.title ?? (conv.auction ? `[Remate] ${conv.auction.title}` : "Chat");
+            const thumb = conv.listing?.images[0]?.url ?? conv.auction?.images[0]?.url;
 
             return (
               <Link
@@ -100,7 +108,7 @@ export default async function ChatListPage() {
                     {thumb ? (
                       <img
                         src={thumb}
-                        alt={conv.listing.title}
+                        alt={title}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -117,7 +125,7 @@ export default async function ChatListPage() {
                       </span>
                       <span className="text-xs text-[#243447]/50">•</span>
                       <span className="truncate text-xs font-bold text-[#75AADB]">
-                        {conv.listing.title}
+                        {title}
                       </span>
                       {conv.deal && (
                         <span className="rounded-full border border-[#E2EAF2] bg-[#F3F8FC] px-2 py-0.5 text-[10px] font-bold text-[#16324F]">
