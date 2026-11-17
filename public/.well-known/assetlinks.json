@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "ar.trueque.app",
+        "sha256_cert_fingerprints": ["DC:6F:6E:6C:66:D0:77:5F:C5:E0:E1:F6:50:7C:59:F3:86:26:86:87:3C:FF:8F:E2:CA:E0:AB:EC:D5:34:2D:9C"]
+      }
+    }]
