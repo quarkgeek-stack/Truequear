@@ -27,7 +27,7 @@ interface FeedFiltersProps {
 }
 
 const fieldClass =
-  "h-[48px] w-full rounded-[12px] border border-[#8FB0CC] bg-[#F4F8FC] px-3.5 text-sm text-[#10283F] placeholder:text-[#3E5670] focus:border-[#16324F] focus:shadow-[0_0_0_3px_rgba(117,170,219,0.45)] focus:outline-none";
+  "h-[48px] w-full min-w-0 max-w-full rounded-[12px] border border-[#8FB0CC] bg-[#F4F8FC] px-3.5 text-sm text-[#10283F] placeholder:text-[#3E5670] focus:border-[#16324F] focus:shadow-[0_0_0_3px_rgba(117,170,219,0.45)] focus:outline-none";
 
 export function FeedFilters({ categories, currentParams }: FeedFiltersProps) {
   const hasActiveFilters = Boolean(

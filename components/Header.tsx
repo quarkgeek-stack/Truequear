@@ -20,7 +20,7 @@ function TruequeARLogo() {
       viewBox="0 0 36 36"
       width="36"
       height="36"
-      className="h-9 w-9 shrink-0"
+      className="h-8 w-8 sm:h-9 sm:w-9 shrink-0"
       aria-hidden="true"
     >
       <circle cx="18" cy="18" r="18" fill="#FFFFFF" />
@@ -45,21 +45,19 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#16324F] text-white shadow-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex min-h-[44px] items-center gap-2.5 tracking-tight text-lg sm:text-xl"
-          >
-            <TruequeARLogo />
-            <span className="font-bold">
-              <span className="text-white">Trueque</span>
-              <span className="text-[#F6C445]">AR</span>
-            </span>
-          </Link>
-        </div>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-1.5 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5">
+        <Link
+          href="/"
+          className="flex min-h-[44px] shrink-0 items-center gap-2 tracking-tight text-base sm:gap-2.5 sm:text-xl"
+        >
+          <TruequeARLogo />
+          <span className="font-bold">
+            <span className="text-white">Trueque</span>
+            <span className="text-[#F6C445]">AR</span>
+          </span>
+        </Link>
 
-        <nav className="flex items-center gap-1.5 sm:gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
           <Link
             href="/#filtros"
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[12px] px-2 text-white transition hover:bg-white/10"
@@ -73,7 +71,7 @@ export async function Header() {
 
           <Link
             href="/publicar"
-            className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-[12px] bg-white px-3.5 py-2 text-sm font-bold text-[#16324F] transition hover:bg-[#E7F1FA]"
+            className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-[12px] bg-white px-3 py-2 text-xs font-bold text-[#16324F] transition hover:bg-[#E7F1FA] sm:px-3.5 sm:text-sm"
           >
             <PlusCircle className="h-4 w-4 shrink-0 text-[#16324F]" />
             <span>Publicar</span>
@@ -125,7 +123,7 @@ export async function Header() {
               {user.role === "ADMIN" && (
                 <Link
                   href="/admin"
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[12px] border-[1.5px] border-[#F6C445] bg-transparent px-2.5 text-[#F6C445] hover:bg-white/10"
+                  className="hidden sm:flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[12px] border-[1.5px] border-[#F6C445] bg-transparent px-2.5 text-[#F6C445] hover:bg-white/10"
                   title="Panel Admin"
                 >
                   <ShieldCheck className="h-5 w-5" />
@@ -137,7 +135,7 @@ export async function Header() {
 
               <Link
                 href="/perfil"
-                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[12px] px-2 text-white hover:bg-white/10"
+                className="hidden sm:flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[12px] px-2 text-white hover:bg-white/10"
                 title="Mi perfil"
               >
                 <User className="h-5 w-5" />
@@ -146,7 +144,7 @@ export async function Header() {
                 </span>
               </Link>
 
-              <form action={logoutAction}>
+              <form action={logoutAction} className="hidden sm:block">
                 <button
                   type="submit"
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[12px] px-2 text-white/90 hover:bg-white/10 hover:text-white"
@@ -160,7 +158,7 @@ export async function Header() {
           ) : (
             <Link
               href="/login"
-              className="flex min-h-[44px] items-center justify-center rounded-[12px] border-[1.5px] border-white bg-transparent px-3.5 py-2 text-sm font-bold text-white transition hover:bg-white/10"
+              className="flex min-h-[44px] items-center justify-center rounded-[12px] border-[1.5px] border-white bg-transparent px-3 py-2 text-xs font-bold text-white transition hover:bg-white/10 sm:px-3.5 sm:text-sm"
             >
               Ingresar
             </Link>
@@ -169,35 +167,54 @@ export async function Header() {
       </div>
 
       {user && (
-        <div className="flex sm:hidden items-center justify-around border-t border-white/15 bg-[#10283F] px-2 py-1 text-xs font-semibold text-white">
+        <div className="flex sm:hidden flex-wrap items-center justify-around gap-x-1 border-t border-white/15 bg-[#10283F] px-2 py-1 text-xs font-semibold text-white">
           <Link
             href="/mis-publicaciones"
-            className="flex min-h-[44px] items-center gap-1 px-2"
+            className="flex min-h-[44px] items-center gap-1 px-1.5"
           >
             <Package className="h-3.5 w-3.5 text-[#F6C445]" />
             <span>Mis cosas</span>
           </Link>
           <Link
             href="/operaciones"
-            className="flex min-h-[44px] items-center gap-1 px-2"
+            className="flex min-h-[44px] items-center gap-1 px-1.5"
           >
             <Handshake className="h-3.5 w-3.5 text-[#F6C445]" />
             <span>Operaciones</span>
           </Link>
           <Link
             href="/favoritos"
-            className="flex min-h-[44px] items-center gap-1 px-2"
+            className="flex min-h-[44px] items-center gap-1 px-1.5"
           >
             <Heart className="h-3.5 w-3.5 text-[#F6C445]" />
             <span>Favoritos</span>
           </Link>
           <Link
-            href="/ajustes"
-            className="flex min-h-[44px] items-center gap-1 px-2"
+            href="/perfil"
+            className="flex min-h-[44px] items-center gap-1 px-1.5"
           >
             <User className="h-3.5 w-3.5 text-[#F6C445]" />
-            <span>Ajustes</span>
+            <span>Perfil</span>
           </Link>
+          {user.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              className="flex min-h-[44px] items-center gap-1 px-1.5 text-[#F6C445]"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>Admin</span>
+            </Link>
+          )}
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              className="flex min-h-[44px] items-center gap-1 px-1.5 text-white/90"
+              title="Cerrar sesión"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Salir</span>
+            </button>
+          </form>
         </div>
       )}
     </header>
