@@ -44,7 +44,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col bg-[#D6E8F7] text-[#2C4260] antialiased">
         <ServiceWorkerRegister />
         <Header />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-3 py-5 sm:px-4 sm:py-6">
+        <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-5 sm:px-4 sm:py-6">
           {children}
         </main>
         <footer className="mt-12 border-t border-[#8FB0CC] bg-white py-6 text-center text-xs text-[#2C4260]">
