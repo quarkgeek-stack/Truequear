@@ -120,7 +120,7 @@ const providers: Provider[] = [
         id: user.id,
         email: user.email,
         name: user.name,
-        image: user.imageUrl,
+        image: null,
         role: effectiveRole,
       };
     },
@@ -167,6 +167,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user.id = updated.id;
           user.role = updated.role;
           user.name = updated.name;
+          user.image = null;
           return true;
         }
 
@@ -181,6 +182,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         user.id = created.id;
         user.role = created.role;
+        user.image = null;
         return true;
       }
       return true;
@@ -199,6 +201,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.role = dbUser.role;
         }
       }
+
+      // Eliminar campos pesados (como picture/image de OAuth o avatares base64)
+      // para que la cookie de sesión pese menos de 300 bytes y nunca desborde el límite de Vercel (Error 494)
+      delete (token as Record<string, unknown>).picture;
+      delete (token as Record<string, unknown>).image;
+
       return token;
     },
     async session({ session, token }) {
