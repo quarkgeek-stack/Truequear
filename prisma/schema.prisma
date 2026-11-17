@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Province {
+  CABA
+  BUENOS_AIRES
+  CATAMARCA
+  CHACO
+  CHUBUT
+  CORDOBA
+  CORRIENTES
+  ENTRE_RIOS
+  FORMOSA
+  JUJUY
+  LA_PAMPA
+  LA_RIOJA
+  MENDOZA
+  MISIONES
+  NEUQUEN
+  RIO_NEGRO
+  SALTA
+  SAN_JUAN
+  SAN_LUIS
+  SANTA_CRUZ
+  SANTA_FE
+  SANTIAGO_DEL_ESTERO
+  TIERRA_DEL_FUEGO
+  TUCUMAN
+}
+
+enum Condition {
+  NUEVO
+  COMO_NUEVO
+  USADO
+  PARA_REPARAR
+}
+
+enum DealType {
+  VENTA
+  TRUEQUE
+  AMBOS
+}
+
+enum ListingStatus {
+  ACTIVA
+  RESERVADA
+  VENDIDA
+  PAUSADA
+  ELIMINADA
+}
+
+enum DealKind {
+  VENTA
+  TRUEQUE
+}
+
+enum DealStatus {
+  PENDIENTE_CONFIRMACION
+  ACORDADA
+  COMISION_PAGADA
+  CERRADA
+  CANCELADA
+}
+
+enum PaymentProvider {
+  MERCADOPAGO
+  DEMO
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  imageUrl     String?
+  bio          String?   @db.VarChar(280)
+  city         String?
+  province     Province?
+  role         Role      @default(USER)
+  ratingAvg    Float     @default(0)
+  ratingCount  Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  listings            Listing[]
+  favorites           Favorite[]
+  buyerConversations  Conversation[] @relation("BuyerConversations")
+  sellerConversations Conversation[] @relation("SellerConversations")
+  messages            Message[]
+  buyerDeals          Deal[]         @relation("BuyerDeals")
+  sellerDeals         Deal[]         @relation("SellerDeals")
+  authoredReviews     Review[]       @relation("AuthoredReviews")
+  receivedReviews     Review[]       @relation("ReceivedReviews")
+}
+
+model Category {
+  id       String     @id @default(cuid())
+  slug     String     @unique
+  name     String
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+  listings Listing[]
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  ownerId     String
+  owner       User          @relation(fields: [ownerId], references: [id])
+  title       String        @db.VarChar(80)
+  description String        @db.VarChar(4000)
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  condition   Condition
+  dealType    DealType
+  priceCents  Int?
+  tradeNotes  String?
+  province    Province
+  city        String
+  status      ListingStatus @default(ACTIVA)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  images        ListingImage[]
+  favorites     Favorite[]
+  conversations Conversation[]
+  deals         Deal[]
+
+  @@index([status, createdAt])
+  @@index([categoryId, status])
+  @@index([province, status])
+}
+
+model ListingImage {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int
+}
+
+model Favorite {
+  userId    String
+  listingId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+  @@unique([userId, listingId])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  listingId     String
+  listing       Listing   @relation(fields: [listingId], references: [id])
+  buyerId       String
+  buyer         User      @relation("BuyerConversations", fields: [buyerId], references: [id])
+  sellerId      String
+  seller        User      @relation("SellerConversations", fields: [sellerId], references: [id])
+  createdAt     DateTime  @default(now())
+  lastMessageAt DateTime  @default(now())
+  buyerReadAt   DateTime?
+  sellerReadAt  DateTime?
+
+  messages Message[]
+  deal     Deal?
+
+  @@unique([listingId, buyerId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  body           String       @db.VarChar(2000)
+  imageUrl       String?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Deal {
+  id                String     @id @default(cuid())
+  conversationId    String     @unique
+  conversation      Conversation @relation(fields: [conversationId], references: [id])
+  listingId         String
+  listing           Listing    @relation(fields: [listingId], references: [id])
+  buyerId           String
+  buyer             User       @relation("BuyerDeals", fields: [buyerId], references: [id])
+  sellerId          String
+  seller            User       @relation("SellerDeals", fields: [sellerId], references: [id])
+  kind              DealKind
+  agreedPriceCents  Int?
+  commissionBps     Int
+  commissionCents   Int        @default(0)
+  status            DealStatus @default(PENDIENTE_CONFIRMACION)
+  buyerConfirmedAt  DateTime?
+  sellerConfirmedAt DateTime?
+  createdAt         DateTime   @default(now())
+
+  payment Payment?
+  reviews Review[]
+}
+
+model Payment {
+  id          String          @id @default(cuid())
+  dealId      String          @unique
+  deal        Deal            @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  provider    PaymentProvider
+  status      PaymentStatus   @default(PENDING)
+  externalId  String?         @unique
+  checkoutUrl String?
+}
+
+model Review {
+  id       String @id @default(cuid())
+  dealId   String
+  deal     Deal   @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation("AuthoredReviews", fields: [authorId], references: [id])
+  targetId String
+  target   User   @relation("ReceivedReviews", fields: [targetId], references: [id])
+  stars    Int
+  comment  String @db.VarChar(500)
+
+  @@unique([dealId, authorId])
+}
+
+model PlatformSetting {
+  id                 String @id @default("default")
+  commissionBps      Int    @default(400)
+  minCommissionCents Int    @default(0)
+  maxCommissionCents Int?
+}
